@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/chillyweather/gator/internal/cli"
 	"github.com/chillyweather/gator/internal/config"
 )
 
@@ -12,11 +13,5 @@ func main() {
 		fmt.Printf("Error: %v", err)
 	}
 
-	err = cfg.SetUser("Dima")
-	if err != nil {
-		fmt.Printf("Error: %v", err)
-	}
-
-	cfg, _ = config.Read()
 	fmt.Println(cfg)
 }
