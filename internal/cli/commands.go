@@ -8,46 +8,49 @@ import (
 )
 
 type State struct {
-	config *config.Config
+	Config *config.Config
 }
 
-type command struct {
-	name string
-	args []string
+type Command struct {
+	Name string
+	Args []string
 }
 
-type commands struct {
-	command map[string]func(s *State, cmd command) error
+type Commands struct {
+	command map[string]func(s *State, cmd Command) error
 }
 
-func (c commands) run(s *State, cmd command) error {
-	handler, ok := c.command[cmd.name]
+func (c Commands) Run(s *State, cmd Command) error {
+	handler, ok := c.command[cmd.Name]
 	if !ok {
-		return errors.New("No such command")
+		return errors.New("no such command")
 	}
 
-	handler(s, cmd)
+	err := handler(s, cmd)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
-func (c *commands) register(name string, f func(*State, command) error) {
+func (c *Commands) Register(name string, f func(*State, Command) error) {
 	if c.command == nil {
-		c.command = make(map[string]func(s *State, cmd command) error)
+		c.command = make(map[string]func(s *State, cmd Command) error)
 
 	}
 	c.command[name] = f
 }
 
-func handlerLogin(s *State, cmd command) error {
-	if len(cmd.args) == 0 {
-		return errors.New("No arguments...")
+func HandlerLogin(s *State, cmd Command) error {
+	if len(cmd.Args) == 0 {
+		return errors.New("no arguments")
 	}
 
-	if err := s.config.SetUser(cmd.args[0]); err != nil {
-		return fmt.Errorf("Error %v", err)
+	if err := s.Config.SetUser(cmd.Args[0]); err != nil {
+		return fmt.Errorf("error %v", err)
 	}
-	fmt.Println("User has been set to ")
+	fmt.Printf("User has been set to %v\n", s.Config.CurrentUserName)
 
 	return nil
 }
