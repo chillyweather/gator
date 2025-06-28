@@ -1,28 +1,39 @@
 package main
 
-import _ "github.com/lib/pq"
-
 import (
+	"database/sql"
 	"fmt"
 	"os"
 
 	"github.com/chillyweather/gator/internal/cli"
 	"github.com/chillyweather/gator/internal/config"
+	"github.com/chillyweather/gator/internal/database"
+	_ "github.com/lib/pq"
 )
 
 func main() {
 	cfg, err := config.Read()
 	if err != nil {
-		fmt.Printf("Error: %v", err)
+		fmt.Printf("Error reading config: %v\n", err)
 		os.Exit(1)
 	}
 
+	db, err := sql.Open("postgres", cfg.DbURL)
+	if err != nil {
+		fmt.Printf("Error opening database: %v\n", err)
+		os.Exit(1)
+	}
+	defer db.Close()
+
+	dbQueries := database.New(db)
 	appState := cli.State{
 		Config: &cfg,
+		DB:     dbQueries,
 	}
 
 	appCommands := cli.Commands{}
 	appCommands.Register("login", cli.HandlerLogin)
+	appCommands.Register("register", cli.HandlerRegister)
 
 	args := os.Args
 	if len(args) < 2 {
