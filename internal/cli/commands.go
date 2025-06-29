@@ -47,6 +47,35 @@ func (c *Commands) Register(name string, f func(*State, Command) error) {
 	c.command[name] = f
 }
 
+func HandleGetUsers(s *State, cmd Command) error {
+	users, err := s.DB.GetUsers(context.Background())
+	if err != nil {
+		return fmt.Errorf("could not get users: %v", err)
+	}
+	currentUser := s.Config.CurrentUserName
+
+	for _, user := range users {
+		if user.Name == currentUser {
+			fmt.Println(user.Name + " (current)")
+			continue
+		}
+		fmt.Println(user.Name)
+	}
+	return nil
+}
+
+func HandleDelete(s *State, cmd Command) error {
+	err := s.DB.DeleteUsers(context.Background())
+	if err != nil {
+		os.Exit(1)
+		return fmt.Errorf("could not delete users: %v", err)
+	}
+
+	fmt.Println("Users deleted successfully!")
+	os.Exit(0)
+	return nil
+}
+
 func HandlerRegister(s *State, cmd Command) error {
 	if len(cmd.Args) == 0 {
 		return errors.New("no arguments")

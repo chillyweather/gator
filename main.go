@@ -34,6 +34,8 @@ func main() {
 	appCommands := cli.Commands{}
 	appCommands.Register("login", cli.HandlerLogin)
 	appCommands.Register("register", cli.HandlerRegister)
+	appCommands.Register("reset", cli.HandleDelete)
+	appCommands.Register("users", cli.HandleGetUsers)
 
 	args := os.Args
 	if len(args) < 2 {
